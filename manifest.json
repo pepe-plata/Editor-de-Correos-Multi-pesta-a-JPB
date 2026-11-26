@@ -1,6 +1,6 @@
 {
   "name": "Editor de Correos",
-  "short_name": "Editor Correos",
+  "short_name": "Editor Correos JPB",
   "description": "Editor y visor de correos .msg y .eml",
   "start_url": "./index.html",
   "display": "standalone",
