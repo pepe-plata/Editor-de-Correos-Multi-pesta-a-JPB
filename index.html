@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Editor de Correos - Multi-pestaña</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="editor-container">
+  <div class="editor-header">
+    <span>✉️ Editor de Correos</span>
+    <button class="btn btn-secondary" id="openFileBtn" style="padding:5px 12px; font-size:12px; background:#fff; color:#0078d4;">
+      📂 Abrir Archivo (.msg, .eml, .html)
+    </button>
+  </div>
+
+  <div class="tabs-bar" id="tabsBar">
+    <button class="tab-new" id="newTabBtn" title="Nueva pestaña">+</button>
+  </div>
+
+  <div class="toolbar" id="toolbar">
+    <div class="toolbar-group">
+      <button data-cmd="undo" title="Deshacer (Ctrl+Z)"><img src="icons/undo.png" alt="Deshacer" class="icon"></button>
+      <button data-cmd="redo" title="Rehacer (Ctrl+Y)"><img src="icons/redo.png" alt="Rehacer" class="icon"></button>
+    </div>
+    <div class="toolbar-group">
+      <select id="fontName" title="Tipo de letra">
+        <option value="Aptos">Aptos</option>
+        <option value="Arial">Arial</option>
+        <option value="Calibri">Calibri</option>
+        <option value="Cambria">Cambria</option>
+        <option value="Candara">Candara</option>
+        <option value="Comic Sans MS">Comic Sans MS</option>
+        <option value="Consolas">Consolas</option>
+        <option value="Constantia">Constantia</option>
+        <option value="Corbel">Corbel</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Franklin Gothic Medium">Franklin Gothic Medium</option>
+        <option value="Georgia">Georgia</option>
+        <option value="Helvetica">Helvetica</option>
+        <option value="Lucida Sans Unicode">Lucida Sans Unicode</option>
+        <option value="Palatino Linotype">Palatino Linotype</option>
+        <option value="Segoe UI">Segoe UI</option>
+        <option value="Tahoma">Tahoma</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Trebuchet MS">Trebuchet MS</option>
+        <option value="Verdana">Verdana</option>
+      </select>
+      <select id="fontSize" title="Tamaño de letra">
+        <option value="1">8</option>
+        <option value="2">10</option>
+        <option value="3" selected>12</option>
+        <option value="4">14</option>
+        <option value="5">18</option>
+        <option value="6">24</option>
+        <option value="7">36</option>
+      </select>
+    </div>
+    <div class="toolbar-group">
+      <button data-cmd="bold" title="Negrita (Ctrl+B)"><b>B</b></button>
+      <button data-cmd="italic" title="Cursiva (Ctrl+I)"><i>I</i></button>
+      <button data-cmd="underline" title="Subrayado (Ctrl+U)"><u>U</u></button>
+      <button data-cmd="strikeThrough" title="Tachado"><s>S</s></button>
+      <button data-cmd="superscript" title="Superíndice"><img src="icons/superscript.png" alt="Superíndice" class="icon"></button>
+      <button data-cmd="subscript" title="Subíndice"><img src="icons/subscript.png" alt="Subíndice" class="icon"></button>
+    </div>
+    <div class="toolbar-group">
+      <div class="color-btn-wrap">
+        <button class="color-btn" id="foreColorBtn" title="Color de texto">
+          <span class="letter">A</span>
+          <span class="swatch" id="foreColorSwatch" style="background:#000000"></span>
+          <span class="arrow">▼</span>
+        </button>
+        <div class="color-popup" id="foreColorPopup">
+          <h4>Tema</h4>
+          <div class="color-grid" id="foreThemeGrid"></div>
+          <h4>Estándar</h4>
+          <div class="color-grid" id="foreStandardGrid"></div>
+          <div class="popup-divider"></div>
+          <div class="section-header"><h4>Recientes</h4><button class="clear-recent" data-clear="fore">Limpiar</button></div>
+          <div id="foreRecentContainer"></div>
+          <div class="popup-divider"></div>
+          <div class="custom-color-row"><input type="color" id="foreCustom" value="#000000"><span>Más colores…</span></div>
+        </div>
+      </div>
+      <div class="color-btn-wrap">
+        <button class="color-btn" id="backColorBtn" title="Color de fondo">
+          <span class="letter">🖍</span>
+          <span class="swatch" id="backColorSwatch" style="background:#ffff00"></span>
+          <span class="arrow">▼</span>
+        </button>
+        <div class="color-popup" id="backColorPopup">
+          <h4>Tema</h4>
+          <div class="color-grid" id="backThemeGrid"></div>
+          <h4>Estándar</h4>
+          <div class="color-grid" id="backStandardGrid"></div>
+          <div class="popup-divider"></div>
+          <div class="section-header"><h4>Recientes</h4><button class="clear-recent" data-clear="back">Limpiar</button></div>
+          <div id="backRecentContainer"></div>
+          <div class="popup-divider"></div>
+          <div class="custom-color-row"><input type="color" id="backCustom" value="#ffff00"><span>Más colores…</span></div>
+        </div>
+      </div>
+      <button id="clearFormat" title="Borrar formato">⌫</button>
+    </div>
+    <div class="toolbar-group">
+      <button data-cmd="justifyLeft" title="Alinear a la izquierda"><img src="icons/aling_left.png" alt="Izquierda" class="icon"></button>
+      <button data-cmd="justifyCenter" title="Centrar"><img src="icons/align_center.png" alt="Centrar" class="icon"></button>
+      <button data-cmd="justifyRight" title="Alinear a la derecha"><img src="icons/align_right.png" alt="Derecha" class="icon"></button>
+      <button data-cmd="justifyFull" title="Justificar"><img src="icons/align_justify.png" alt="Justificar" class="icon"></button>
+    </div>
+    <div class="toolbar-group">
+      <button data-cmd="insertUnorderedList" title="Viñetas"><img src="icons/bullets.png" alt="Viñetas" class="icon"></button>
+      <button data-cmd="insertOrderedList" title="Numeración"><img src="icons/numbering.png" alt="Numeración" class="icon"></button>
+    </div>
+    <div class="toolbar-group">
+      <button data-cmd="outdent" title="Disminuir sangría"><img src="icons/decrease_indent.png" alt="Disminuir sangría" class="icon"></button>
+      <button data-cmd="indent" title="Aumentar sangría"><img src="icons/increase_indent.png" alt="Aumentar sangría" class="icon"></button>
+    </div>
+    <div class="toolbar-group">
+      <select id="lineHeight" title="Interlineado">
+        <option value="1">Interlineado 1.0</option>
+        <option value="1.15">Interlineado 1.15</option>
+        <option value="1.5" selected>Interlineado 1.5</option>
+        <option value="2">Interlineado 2.0</option>
+        <option value="2.5">Interlineado 2.5</option>
+        <option value="3">Interlineado 3.0</option>
+      </select>
+    </div>
+    <div class="toolbar-group">
+      <button id="insertImage" title="Insertar imagen"><img src="icons/image.png" alt="Imagen" class="icon"></button>
+      <button id="insertLink" title="Insertar enlace"><img src="icons/link.png" alt="Enlace" class="icon"></button>
+      <button id="insertTable" title="Insertar tabla"><img src="icons/table.png" alt="Tabla" class="icon"></button>
+      <button data-cmd="insertHorizontalRule" title="Línea horizontal"><img src="icons/line.png" alt="Línea" class="icon"></button>
+      <button id="insertEmoji" title="Emoji">😊</button>
+    </div>
+    <div class="toolbar-group">
+      <button id="removeFormat" title="Quitar todo el formato"><img src="icons/remove_format.png" alt="Quitar formato" class="icon"></button>
+    </div>
+  </div>
+
+  <div class="editor-body">
+    <div class="recipients-block">
+      <div class="recipient-line">
+        <label for="toField">Para:</label>
+        <input type="text" id="toField" placeholder="Destinatarios...">
+      </div>
+      <div class="recipient-line">
+        <label for="ccField">CC:</label>
+        <input type="text" id="ccField" placeholder="Con copia...">
+      </div>
+      <div class="recipient-line">
+        <label for="subject">Asunto:</label>
+        <input type="text" id="subject" placeholder="Asunto del correo...">
+      </div>
+    </div>
+    <div class="editable" id="editor" contenteditable="true" data-placeholder="Escribe el cuerpo del correo aquí..."></div>
+  </div>
+
+  <div class="editor-footer">
+    <span class="char-count" id="charCount">0 caracteres</span>
+    <div>
+      <button class="btn btn-secondary" id="viewHtml">Ver HTML</button>
+      <button class="btn btn-secondary" id="copyHtml">Copiar HTML</button>
+      <button class="btn btn-primary" id="downloadHtml">Descargar .html</button>
+      <button class="btn btn-secondary" id="clearAll">Limpiar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="htmlModal">
+  <div class="modal-content">
+    <div class="modal-header"><span>Código HTML generado</span><button class="close-x" id="closeModal">✕</button></div>
+    <div class="modal-body"><textarea id="htmlOutput" readonly></textarea></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="copyFromModal">Copiar</button>
+      <button class="btn btn-primary" id="closeModalBtn">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="openFileInput" accept=".html,.htm,.msg,.eml" style="display:none" multiple>
+
+<script type="importmap">
+{
+  "imports": {
+    "msg-lens": "https://esm.sh/msg-lens@1.0.3",
+    "postal-mime": "https://esm.sh/postal-mime@2.4.3"
+  }
+}
+</script>
+<script type="module" src="app.js"></script>
+
+</body>
+</html>
