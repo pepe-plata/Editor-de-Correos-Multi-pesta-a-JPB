@@ -1,0 +1,31 @@
+{
+  "name": "Editor de Correos",
+  "short_name": "Editor Correos",
+  "description": "Editor y visor de correos .msg y .eml",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#f3f2f1",
+  "theme_color": "#0078d4",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "/index.html",
+      "accept": {
+        "application/vnd.ms-outlook": [".msg"],
+        "message/rfc822": [".eml"],
+        "text/html": [".html", ".htm"]
+      }
+    }
+  ]
+}

@@ -140,7 +140,7 @@ document.getElementById('newTabBtn').addEventListener('click', () => {
 });
 
 /* ============================================================
-   ABRIR ARCHIVOS
+   ABRIR ARCHIVOS (botón)
    ============================================================ */
 const openFileInput = document.getElementById('openFileInput');
 document.getElementById('openFileBtn').addEventListener('click', () => openFileInput.click());
@@ -150,33 +150,38 @@ openFileInput.addEventListener('change', async (e) => {
   if (!files.length) return;
   saveActiveTabState();
   for (const file of files) {
-    const ext = file.name.split('.').pop().toLowerCase();
-    try {
-      let parsed;
-      if (ext === 'msg') parsed = await parseMsgFileBrowser(file);
-      else if (ext === 'eml') parsed = await parseEmlBrowser(file);
-      else if (ext === 'html' || ext === 'htm') parsed = await parseHtmlFile(file);
-      else { alert(`Formato no soportado: ${file.name}`); continue; }
-
-      createTab({
-        title: parsed.title || file.name.replace(/\.[^.]+$/, ''),
-        subject: parsed.subject,
-        to: parsed.to || '',
-        cc: parsed.cc || '',
-        body: parsed.body,
-        filename: file.name
-      });
-
-      if (parsed.body) {
-        extractAndRegisterColorsFromHtml(parsed.body);
-      }
-    } catch (err) {
-      console.error(`Error al abrir ${file.name}:`, err);
-      alert(`No se pudo abrir "${file.name}": ${err.message || err}`);
-    }
+    await openFileIntoNewTab(file);
   }
   openFileInput.value = '';
 });
+
+/* Función compartida entre el botón y el launchQueue */
+async function openFileIntoNewTab(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  try {
+    let parsed;
+    if (ext === 'msg') parsed = await parseMsgFileBrowser(file);
+    else if (ext === 'eml') parsed = await parseEmlBrowser(file);
+    else if (ext === 'html' || ext === 'htm') parsed = await parseHtmlFile(file);
+    else { alert(`Formato no soportado: ${file.name}`); return; }
+
+    createTab({
+      title: parsed.title || file.name.replace(/\.[^.]+$/, ''),
+      subject: parsed.subject,
+      to: parsed.to || '',
+      cc: parsed.cc || '',
+      body: parsed.body,
+      filename: file.name
+    });
+
+    if (parsed.body) {
+      extractAndRegisterColorsFromHtml(parsed.body);
+    }
+  } catch (err) {
+    console.error(`Error al abrir ${file.name}:`, err);
+    alert(`No se pudo abrir "${file.name}": ${err.message || err}`);
+  }
+}
 
 /* -------- Parser .msg con msg-lens -------- */
 async function parseMsgFileBrowser(file) {
@@ -189,8 +194,6 @@ async function parseMsgFileBrowser(file) {
 
   const msg = result.message;
   let body = msg.bodyHtml || '';
-
-  // Asegurar que el HTML declare su charset para que los acentos se vean bien
   body = ensureCharset(body);
 
   return {
@@ -202,17 +205,12 @@ async function parseMsgFileBrowser(file) {
   };
 }
 
-/* Asegura que el HTML tenga un charset declarado.
-   Si ya trae uno, lo respeta; si no, añade UTF-8. */
 function ensureCharset(html) {
   if (!html) return html;
-  // Si ya tiene <meta charset>, no tocar nada
   if (/<meta[^>]+charset/i.test(html)) return html;
-  // Si tiene <head>, insertar el meta ahí
   if (/<head[^>]*>/i.test(html)) {
     return html.replace(/<head[^>]*>/i, '$&<meta charset="utf-8">');
   }
-  // Si no hay <head>, anteponer el meta
   return `<meta charset="utf-8">${html}`;
 }
 
@@ -928,6 +926,27 @@ document.getElementById('clearAll').addEventListener('click', () => {
 editor.addEventListener('keydown', e => {
   if (e.key === 'Tab') { e.preventDefault(); exec(e.shiftKey ? 'outdent' : 'indent'); }
 });
+
+/* ============================================================
+   MANEJO DE ARCHIVOS ABIERTOS DESDE EL EXPLORADOR (PWA)
+   ============================================================ */
+if ('launchQueue' in window) {
+  window.launchQueue.setConsumer(async (launchParams) => {
+    if (!launchParams.files.length) return;
+
+    // Guardar el estado actual de la pestaña activa
+    saveActiveTabState();
+
+    for (const fileHandle of launchParams.files) {
+      try {
+        const file = await fileHandle.getFile();
+        await openFileIntoNewTab(file);
+      } catch (err) {
+        console.error('Error al abrir archivo desde el sistema:', err);
+      }
+    }
+  });
+}
 
 /* ============================================================
    INICIALIZACIÓN
