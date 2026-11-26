@@ -928,15 +928,39 @@ editor.addEventListener('keydown', e => {
 });
 
 /* ============================================================
+   INSTALACIÓN PWA (botón en la cabecera)
+   ============================================================ */
+let deferredInstallPrompt = null;
+const installAppBtn = document.getElementById('installAppBtn');
+
+// Chrome dispara este evento cuando la app es instalable
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  installAppBtn.removeAttribute('hidden');
+});
+
+installAppBtn.addEventListener('click', async () => {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  const { outcome } = await deferredInstallPrompt.userChoice;
+  console.log(`Instalación: ${outcome}`);
+  deferredInstallPrompt = null;
+  installAppBtn.setAttribute('hidden', '');
+});
+
+window.addEventListener('appinstalled', () => {
+  installAppBtn.setAttribute('hidden', '');
+  console.log('PWA instalada correctamente');
+});
+
+/* ============================================================
    MANEJO DE ARCHIVOS ABIERTOS DESDE EL EXPLORADOR (PWA)
    ============================================================ */
 if ('launchQueue' in window) {
   window.launchQueue.setConsumer(async (launchParams) => {
     if (!launchParams.files.length) return;
-
-    // Guardar el estado actual de la pestaña activa
     saveActiveTabState();
-
     for (const fileHandle of launchParams.files) {
       try {
         const file = await fileHandle.getFile();

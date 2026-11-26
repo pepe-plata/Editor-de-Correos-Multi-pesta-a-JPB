@@ -12,9 +12,15 @@
 <div class="editor-container">
   <div class="editor-header">
     <span>✉️ Editor de Correos</span>
-    <button class="btn btn-secondary" id="openFileBtn" style="padding:5px 12px; font-size:12px; background:#fff; color:#0078d4;">
-      📂 Abrir Archivo (.msg, .eml, .html)
-    </button>
+    <div style="display: flex; gap: 8px;">
+      <button class="btn btn-secondary" id="installAppBtn" hidden
+              style="padding:5px 12px; font-size:12px; background:#fff; color:#0078d4;">
+        📲 Instalar App
+      </button>
+      <button class="btn btn-secondary" id="openFileBtn" style="padding:5px 12px; font-size:12px; background:#fff; color:#0078d4;">
+        📂 Abrir Archivo (.msg, .eml, .html)
+      </button>
+    </div>
   </div>
 
   <div class="tabs-bar" id="tabsBar">
